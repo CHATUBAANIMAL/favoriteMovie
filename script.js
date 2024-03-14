@@ -7,9 +7,7 @@ const movieName = document.getElementById('movie-name');
 const movieYear = document.getElementById('movie-year');
 const movieListContainer = document.getElementById("movie-list");
 
-
-let movieList = [];
-
+let movieList = JSON.parse(localStorage.getItem("movieList")) ?? [];
 async function searchButtonClickHandler () {
     try{
         let url = `http://www.omdbapi.com/?apikey=${key}&t=${movieNameParameterGenerator()}${movieYearParameterGeenration()}`;
@@ -72,8 +70,28 @@ function updateUI(movieObject) {
 }
 
 function removeFilmFromList (id) {
-    movieList = movieList.filter(movie => movie.imdbID !== id);
-    document.getElementById(`movie-card-${id}`).remove();
+    notie.confirm({
+        text: 'Deseja remover o filme da sua lista?',
+        submitText: 'Sim',
+        cancelText: 'Não',
+        position: 'top',
+        submitCallback: function removeMovie() {
+            movieList = movieList.filter(movie => movie.imdbID !== id);
+            document.getElementById(`movie-card-${id}`).remove();
+            updateLocalStorage();
+        }
+    })
+    
     
 }
+
+function updateLocalStorage () {
+    localStorage.setItem('movieList', JSON.stringify(movieList));
+
+}
+
+for (const movieInfo of movieList) {
+    updateUI(movieInfo);
+}
+
 searchButton.addEventListener('click', searchButtonClickHandler);
